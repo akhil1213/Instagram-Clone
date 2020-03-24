@@ -1,19 +1,53 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import PresentationalComponent from './PresentationalComponent'
+import Inputs from './Inputs.js'
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+
+const Stack = createStackNavigator();
+
+export default class App extends React.Component {
+   state = {
+      myState: 'Lebron James'
+   }
+   updateState = () => {
+     if(this.state.myState=='Lebron James' ){
+        this.setState({ myState: 'Kobe Bryant' })
+     }else{
+       this.setState({myState:'Lebron James'})
+     }
+   }
+   render() {
+      return (
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen name="Home" component={Inputs} />
+            {/* <Stack.Screen name="Details">
+                <PresentationalComponent myState = {this.state.myState} updateState = {this.updateState}/>
+            </Stack.Screen> component={PresentationalComponent}/> */}
+            <Stack.Screen name="dontmatter" component={PresentationalComponent} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      );
+   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+
+
+// function App() {
+//   return (
+//     <NavigationContainer>
+//       <Stack.Navigator initialRouteName="Home">
+//         <Stack.Screen name="Home" component={Inputs} />
+//         {/* <Stack.Screen name="Details">
+//             <PresentationalComponent myState = {this.state.myState} updateState = {this.updateState}/>
+//         </Stack.Screen> component={PresentationalComponent}/> */}
+//          <Stack.Screen name="dontmatter" component={PresentationalComponent} />
+//       </Stack.Navigator>
+//     </NavigationContainer>
+//   );
+// }
+
+export default App;
