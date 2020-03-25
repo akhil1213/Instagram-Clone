@@ -1,37 +1,55 @@
 import React, { Component } from 'react'
-import { Text, View, TouchableOpacity, StyleSheet,  ScrollView, Image } from 'react-native'
-   
+import { Text, View, TouchableOpacity, StyleSheet,  ScrollView, Image, Button } from 'react-native'
+// import ImagePicker from 'react-native-image-picker'
+import * as ImagePicker from 'expo-image-picker';
+
 class List extends Component {
    state = {
       names: [
-         {
-            id: 0,
-            name: 'Akhil',
-            path:require('/Users/akhilkhanna/Desktop/React-Native/imagesofme/selfie1.png'),
-         },
-         {
-            id: 1,
-            name: 'Susan',
-            path:require('/Users/akhilkhanna/Desktop/React-Native/imagesofme/selfie2.png'),
-         },
-         {
-            id: 2,
-            name: 'Robert',
-            path:require('/Users/akhilkhanna/Desktop/React-Native/imagesofme/selfie3.png'),
-         },
-         {
-            id: 3,
-            name: 'Ben',
-            path:require('/Users/akhilkhanna/Desktop/React-Native/imagesofme/selfie4.png'),
-         },
+
       ],
    }
    alertItemName = (item) => {
       alert(item.name)
    }
+   // handleChoosePhoto = () => {
+      // ImagePicker.launchImageLibrary(options,response => {
+      //    if(response.uri){
+      //       this.setState(state => {
+      //          newPicture = {
+      //             path:response.uri,
+      //             name:'whatev',
+      //             id:5
+      //          }
+      //          const names = state.names.concat(state.value);
+      //          return {
+      //            names,
+      //          };
+      //        });
+      //    }
+      // })
+      pickImage = async () => {
+         let result = await ImagePicker.launchImageLibraryAsync({
+           mediaTypes: ImagePicker.MediaTypeOptions.All,
+           allowsEditing: true,
+           aspect: [4, 3],
+           quality: 1
+         });
+     
+         console.log(result);
+         var newPicture = {
+            id:5,
+            name:'akhil',
+            path:result.uri
+         }
+         this.setState({ names: [...this.state.names, newPicture] }) 
+       }
+
+   // }
    render() {
       return (
          <View>
+            <Button title = "choose photo" onPress = {this.pickImage} style = {styles.button}/>
             <ScrollView>   
                {
                   this.state.names.map((item, index) => (
@@ -42,7 +60,7 @@ class List extends Component {
                         <Text style = {styles.text}>
                            {item.name}
                         </Text>
-                        <Image source = {item.path} style = {styles.image} />
+                        <Image source = {{uri:item.path}} style = {styles.image} />
                      </TouchableOpacity>
                   ))
                }
@@ -68,5 +86,12 @@ const styles = StyleSheet.create ({
    image:{
       width: 100, 
       height: 100
+   },
+   button:{
+      padding:10,
+      backgroundColor:'blue',
+      top:0,
+      right:0,
+      position: 'absolute'
    }
 })
