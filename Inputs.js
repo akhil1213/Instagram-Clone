@@ -36,7 +36,7 @@ class Inputs extends Component {
             
             <TouchableOpacity
                style = {styles.submitButton}
-               onPress={() => this.props.navigation.navigate('dontmatter')}>
+               onPress={() => this.props.navigation.navigate('lists')}>
                <Text style = {styles.submitButtonText}> Submit </Text>
             </TouchableOpacity>
          </View>
