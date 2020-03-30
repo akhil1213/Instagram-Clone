@@ -18,29 +18,41 @@ import Swipeout from 'react-native-swipeout'
 
 class List extends Component {
    state = {
-      names: [
+      images: [
 
       ],
    }
    alertItemName = (item) => {
       alert(item.name)
    }
-   pickImage = async () => {
+   pickImage = async (rowId) => {//if id was passed, then that row should be updated with the new result.uri
       let result = await ImagePicker.launchImageLibraryAsync({
          mediaTypes: ImagePicker.MediaTypeOptions.All,
          allowsEditing: true,
          aspect: [4, 3],
          quality: 1
       });
-   
-      console.log(result);
+      console.log(rowId)
       var newPicture = {
          id:uuid.v1(),
          name:'akhil',
          path:result.uri
       }
       if(!result.cancelled){
-         this.setState({ names: [...this.state.names, newPicture] }) 
+         if(rowId!=null){
+            var index = -1;
+            for(var i = 0; i < this.state.images.length; i++){
+               if(this.state.images[i].id == rowId){
+                  index = i
+               }
+            }
+            console.log(index)
+            let imagesCopied = [...this.state.images];  
+            imagesCopied[index].path = result.uri
+            this.setState({images:imagesCopied})
+         }else{
+            this.setState({ images: [...this.state.images, newPicture] }) 
+         }
       }
    }
    onSwipeLeft(gestureState) {
@@ -77,10 +89,10 @@ class List extends Component {
       }
       return (
          <View>
-            <Button title = "choose photo" onPress = {this.pickImage} style = {styles.button}/>
+            <Button title = "choose photo" onPress = {() => this.pickImage(null)} style = {styles.button}/>
             <ScrollView>
             <FlatList
-               data={this.state.names}
+               data={this.state.images}
                renderItem={({ item }) => {
                return(
                   <Swipeout autoClose={true} right={[
@@ -89,20 +101,21 @@ class List extends Component {
                            console.log(item.id)
                            // const index = this.state.indexOf(item.id);
                            // console.log(index)
-                           // newNames = this.state.names.splice(index,1)
-                           // console.log(newNames)
-                           // this.setState({names:newNames})
-                           this.setState({names: this.state.names.filter( (picture) => { 
+                           // newimages = this.state.images.splice(index,1)
+                           // console.log(newimages)
+                           // this.setState({images:newNames})
+                           //code to delete clicked image from array
+                           this.setState({images: this.state.images.filter( (picture) => { 
                               return picture.id !== item.id
                            })});
-                           console.log(this.state.names)
+                           console.log(this.state.images)
                         },
                         text:'delete',
                         type:'delete'
                      },
                      {
                         onPress: () =>{
-                           console.log(item.id)
+                           this.pickImage(item.id)
                         },
                         text:'edit',
                         type:'secondary'
@@ -112,9 +125,9 @@ class List extends Component {
                         key = {item.id}
                         style = {styles.container}
                         onPress = {() => this.clickedImage(this.props,item.id)}>
-                        <Text style = {styles.text}>
+                        {/* <Text style = {styles.text}>
                            Lebron
-                        </Text>
+                        </Text> */}
                         <Image source = {{uri:item.path}} style = {styles.image} />
                      </TouchableOpacity>
                   </Swipeout>
