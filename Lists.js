@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, TouchableOpacity,FlatList, View, StyleSheet,  ScrollView, Image, Button } from 'react-native'
+import { TextInput,Modal,Dimensions, Text, TouchableOpacity,FlatList, View, StyleSheet,  ScrollView, Image, Button } from 'react-native'
 // import ImagePicker from 'react-native-image-picker'
 import * as ImagePicker from 'expo-image-picker';
 import uuid from 'react-native-uuid';
@@ -18,14 +18,32 @@ import Swipeout from 'react-native-swipeout'
 
 class List extends Component {
    state = {
+      iconImage:'',
       images: [
 
       ],
+      comments:[],
+      screenWidth:Dimensions.get('window').width,
+      screenHeight:Dimensions.get('window').height,
+      liked:false,
+      heartIcon:require('./assets/like.png'),
+      commentPath:require('./assets/comment.png'),
+      modalVisible:false
+   }
+   comment = () => {
+      this.setState({modalVisible:true})
+   }
+   changeLike = () =>{
+      let liked = !this.state.liked
+      let heartIcon = liked ? require('./assets/like.png') : require('./assets/dislike.png')
+      console.log(this.state.liked)
+      this.setState({liked,heartIcon})
    }
    alertItemName = (item) => {
       alert(item.name)
    }
    pickImage = async (rowId) => {//if id was passed, then that row should be updated with the new result.uri
+      
       let result = await ImagePicker.launchImageLibraryAsync({
          mediaTypes: ImagePicker.MediaTypeOptions.All,
          allowsEditing: true,
@@ -39,19 +57,24 @@ class List extends Component {
          path:result.uri
       }
       if(!result.cancelled){
-         if(rowId!=null){
-            var index = -1;
-            for(var i = 0; i < this.state.images.length; i++){
-               if(this.state.images[i].id == rowId){
-                  index = i
-               }
-            }
-            console.log(index)
-            let imagesCopied = [...this.state.images];  
-            imagesCopied[index].path = result.uri
-            this.setState({images:imagesCopied})
+         if(rowId == 'iconimage'){
+            this.setState({iconImage:result.uri})
+            console.log("icon image clicked")
          }else{
-            this.setState({ images: [...this.state.images, newPicture] }) 
+            if(rowId!=null){
+               var index = -1;
+               for(var i = 0; i < this.state.images.length; i++){
+                  if(this.state.images[i].id == rowId){
+                     index = i
+                  }
+               }
+               console.log(index)
+               let imagesCopied = [...this.state.images];  
+               imagesCopied[index].path = result.uri
+               this.setState({images:imagesCopied})
+            }else{
+               this.setState({ images: [...this.state.images, newPicture] }) 
+            }
          }
       }
    }
@@ -121,15 +144,43 @@ class List extends Component {
                         type:'secondary'
                      },
                   ]}>
-                     <TouchableOpacity
-                        key = {item.id}
-                        style = {styles.container}
-                        onPress = {() => this.clickedImage(this.props,item.id)}>
-                        {/* <Text style = {styles.text}>
-                           Lebron
-                        </Text> */}
-                        <Image source = {{uri:item.path}} style = {styles.image} />
+                  <View style = {styles.aboveImage}>
+                     <TouchableOpacity onPress = {() => this.pickImage('iconimage')}>
+                        <Image source={{uri:this.state.iconImage}} style={styles.iconImage}></Image>
                      </TouchableOpacity>
+                     <Text>younginwabeard</Text>
+                  </View>
+                  <TouchableOpacity
+                     key = {item.id}
+                     style = {styles.container}
+                     onPress = {() => this.clickedImage(this.props,item.id)}>
+                     {/* <Text style = {styles.text}>
+                        Lebron
+                     </Text> */}
+                     <Image source = {{uri:item.path}} style = {{width: this.state.screenWidth, height: this.state.screenHeight/2}} />
+                  </TouchableOpacity>
+                  <View style={styles.imageOptions}>
+                     <TouchableOpacity onPress = {this.changeLike}>
+                        <Text>Wow</Text>
+                        <Image source={this.state.heartIcon}></Image>
+                     </TouchableOpacity>
+                     <TouchableOpacity onPress = {this.comment}>
+                        <Text></Text>
+                        <Image source={this.state.commentPath}></Image>
+                     </TouchableOpacity>
+                  </View>
+                  <View>
+                     <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={this.state.modalVisible}
+                        onRequestClose={() => {
+                           Alert.alert("Modal has been closed.");
+                        }}
+                     >
+                        <TextInput style={{ height: 40, borderColor: 'gray', borderWidth: 1 }} onChangeText={text => this.setState({commentText:text})}/>
+                     </Modal>
+                  </View>
                   </Swipeout>
                   )
                }}
@@ -144,20 +195,26 @@ class List extends Component {
 export default List
 
 const styles = StyleSheet.create ({
+   aboveImage:{
+      flexDirection:'row',
+      marginBottom:10,
+      height:50,
+      alignItems:'center'
+   },
+   iconImage:{
+      borderRadius:20,
+      width:50,
+      height:50
+   },
+   imageOptions:{
+      height:50
+   },
    container: {
-      padding: 20,
-      marginTop: 40,
-      backgroundColor: '#d9f9b1',
       alignItems: 'center',
       justifyContent: 'space-between',
-
    },
    text: {
       color: '#4f603c'
-   },
-   image:{
-      width: 100, 
-      height: 100
    },
    button:{
       padding:10,
