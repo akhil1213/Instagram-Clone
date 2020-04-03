@@ -4,7 +4,7 @@ import { TextInput,Modal,Dimensions, Text, TouchableOpacity,FlatList, View, Styl
 import * as ImagePicker from 'expo-image-picker';
 import uuid from 'react-native-uuid';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
-import Swipeable from 'react-native-gesture-handler';
+import Swipeable, { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Swipeout from 'react-native-swipeout'
 // import {GestureHandler} from 'expo';
 // const { Swipeable } = GestureHandler;
@@ -18,7 +18,7 @@ import Swipeout from 'react-native-swipeout'
 
 class List extends Component {
    state = {
-      iconImage:'',
+      iconImage:'./assets/like.png',
       images: [
 
       ],
@@ -28,7 +28,24 @@ class List extends Component {
       liked:false,
       heartIcon:require('./assets/like.png'),
       commentPath:require('./assets/comment.png'),
-      modalVisible:false
+      modalVisible:false,
+      commentText:''
+   }
+   modalButtonPressed = () =>{
+      const commentsWithNew = this.state.comments.concat(this.state.commentText)
+      console.log(this.state.commentText)
+      let newComment = {
+         commentText:this.state.commentText,
+         id:uuid.v1()
+      }
+      this.setState({
+           commentText:'',
+           comments:[...this.state.comments, newComment],
+           modalVisible:false
+      })
+       for(var comment = 0; comment < this.state.comments.length; comment++){
+         console.log(this.state.comments[comment].commentText)
+       }
    }
    comment = () => {
       this.setState({modalVisible:true})
@@ -112,8 +129,19 @@ class List extends Component {
       }
       return (
          <View>
+            <Modal
+                           animationType="slide"
+                           visible={this.state.modalVisible}
+                           onRequestClose={() => {
+                              Alert.alert("Modal has been closed.");
+                           }}
+                        >
+                           <View style={styles.modalView}>
+                              <TextInput style={styles.input} onChangeText={text => this.setState({commentText:text})}/>
+                              <Button   title="Learn More" onPress = {this.modalButtonPressed}></Button>
+                           </View>
+            </Modal>
             <Button title = "choose photo" onPress = {() => this.pickImage(null)} style = {styles.button}/>
-            <ScrollView>
             <FlatList
                data={this.state.images}
                renderItem={({ item }) => {
@@ -161,7 +189,6 @@ class List extends Component {
                   </TouchableOpacity>
                   <View style={styles.imageOptions}>
                      <TouchableOpacity onPress = {this.changeLike}>
-                        <Text>Wow</Text>
                         <Image source={this.state.heartIcon}></Image>
                      </TouchableOpacity>
                      <TouchableOpacity onPress = {this.comment}>
@@ -169,24 +196,22 @@ class List extends Component {
                         <Image source={this.state.commentPath}></Image>
                      </TouchableOpacity>
                   </View>
-                  <View>
-                     <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={this.state.modalVisible}
-                        onRequestClose={() => {
-                           Alert.alert("Modal has been closed.");
-                        }}
-                     >
-                        <TextInput style={{ height: 40, borderColor: 'gray', borderWidth: 1 }} onChangeText={text => this.setState({commentText:text})}/>
-                     </Modal>
-                  </View>
+                  <FlatList
+                     data={this.state.comments}
+                     renderItem={({ comment }) => {
+                        return(
+                           <View>
+                              <Text>{comment.commentText}</Text>
+                           </View>
+                        )
+                  }}
+                     keyExtractor={item => item.id}
+                  />
                   </Swipeout>
                   )
                }}
-               keyExtractor={item => item.id}
-            />   
-            </ScrollView>
+               keyExtractor={comment => comment.id}
+            />  
          </View>
       )
    }
@@ -195,6 +220,20 @@ class List extends Component {
 export default List
 
 const styles = StyleSheet.create ({
+   input: {
+      margin: 10,
+      height: 40,
+      borderColor: '#7a42f4',
+      borderWidth: 1,
+      backgroundColor:'black',
+      width:100
+   },
+   modalView:{
+      alignItems:'center',
+      justifyContent:'center',
+      flex:1,
+      flexDirection:'column'
+   },
    aboveImage:{
       flexDirection:'row',
       marginBottom:10,
@@ -207,6 +246,7 @@ const styles = StyleSheet.create ({
       height:50
    },
    imageOptions:{
+      flexDirection:'row',
       height:50
    },
    container: {
