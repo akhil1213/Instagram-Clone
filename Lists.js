@@ -6,6 +6,7 @@ import uuid from 'react-native-uuid';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 import Swipeable, { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Swipeout from 'react-native-swipeout'
+import {connect} from 'react-redux'
 // import {GestureHandler} from 'expo';
 // const { Swipeable } = GestureHandler;
 // import {
@@ -17,12 +18,22 @@ import Swipeout from 'react-native-swipeout'
 
 
 class List extends Component {
+   _isMounted = false;
+   constructor(props) {
+      super(props);
+      console.log(this.props.comments)
+   }
    state = {
       iconImage:'./assets/like.png',
       images: [
 
       ],
-      comments:[],
+      comments:[
+         {
+            id:'5',
+            commentText:'tyrone'
+         },
+      ],
       screenWidth:Dimensions.get('window').width,
       screenHeight:Dimensions.get('window').height,
       liked:false,
@@ -41,15 +52,20 @@ class List extends Component {
       this.setState({
            commentText:'',
            comments:[...this.state.comments, newComment],
-           modalVisible:false
-      })
-       for(var comment = 0; comment < this.state.comments.length; comment++){
-         console.log(this.state.comments[comment].commentText)
-       }
+      },function () {
+         this.setState({modalVisible:false})
+     })
+     console.log(this.state.comments[0])
    }
-   comment = () => {
-      this.setState({modalVisible:true})
-   }
+   // addComment = (newComment) => {
+   //    //need to use bind because 'this' gets lost.
+   //    if(this._isMounted){
+   //       this.setState({
+   //          commentText:this.props.route.params.commentText
+   //       })
+   //       console.log(this.state.commentText)
+   //    }
+   // }
    changeLike = () =>{
       let liked = !this.state.liked
       let heartIcon = liked ? require('./assets/like.png') : require('./assets/dislike.png')
@@ -127,9 +143,13 @@ class List extends Component {
          },
          // rowId:this.props.index,
       }
+      for(var i = 0; i < this.props.comments.length; i++){
+         console.log(this.props.comments[i].commentText)
+         console.log("dick")
+      }
       return (
          <View>
-            <Modal
+            {/* <Modal
                            animationType="slide"
                            visible={this.state.modalVisible}
                            onRequestClose={() => {
@@ -138,13 +158,14 @@ class List extends Component {
                         >
                            <View style={styles.modalView}>
                               <TextInput style={styles.input} onChangeText={text => this.setState({commentText:text})}/>
-                              <Button   title="Learn More" onPress = {this.modalButtonPressed}></Button>
+                              <Button   title="Learn More" onPress = {this.modalButtonPressed.bind(this)}></Button>
                            </View>
-            </Modal>
+            </Modal> */}
             <Button title = "choose photo" onPress = {() => this.pickImage(null)} style = {styles.button}/>
             <FlatList
                data={this.state.images}
                renderItem={({ item }) => {
+                  console.log({item})
                return(
                   <Swipeout autoClose={true} right={[
                      {
@@ -188,36 +209,34 @@ class List extends Component {
                      <Image source = {{uri:item.path}} style = {{width: this.state.screenWidth, height: this.state.screenHeight/2}} />
                   </TouchableOpacity>
                   <View style={styles.imageOptions}>
-                     <TouchableOpacity onPress = {this.changeLike}>
+                     <TouchableOpacity onPress = {() => this.changeLike}>
                         <Image source={this.state.heartIcon}></Image>
                      </TouchableOpacity>
-                     <TouchableOpacity onPress = {this.comment}>
-                        <Text></Text>
+                     <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments')}>
                         <Image source={this.state.commentPath}></Image>
                      </TouchableOpacity>
                   </View>
-                  <FlatList
-                     data={this.state.comments}
-                     renderItem={({ comment }) => {
-                        return(
-                           <View>
-                              <Text>{comment.commentText}</Text>
-                           </View>
-                        )
-                  }}
-                     keyExtractor={item => item.id}
-                  />
+                  {this.props.comments.map(function(comment) {
+                     return(
+                        <Text>
+                           Akhilsss{comment.commentText}
+                        </Text>
+                     )
+                  })}
+
                   </Swipeout>
                   )
                }}
-               keyExtractor={comment => comment.id}
+               keyExtractor={item => item.id}
             />  
          </View>
       )
    }
 }
+const mapStateToProps = state => ({ comments: state.comments })
 
-export default List
+
+export default connect(mapStateToProps)(List)
 
 const styles = StyleSheet.create ({
    input: {
@@ -268,3 +287,11 @@ const styles = StyleSheet.create ({
       padding:30
    }
 })
+
+
+
+
+
+// export default List
+
+

@@ -5,32 +5,50 @@ import Inputs from './Inputs.js'
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Lists from './Lists.js'
+import Comments from './Comments'
 import GestureRecognizer from 'react-native-swipe-gestures';
-
-
+import {createStore} from 'redux'
+import {Provider} from 'react-redux'
 const Stack = createStackNavigator();
-
+const initialState = {
+   commentText:'',
+   comments:[]
+}
+const reducer = (state = initialState,action) => {
+   console.log(action.payload)
+   switch(action.type){
+      case 'ADD_COMMENT':
+         return  {
+         comments: [
+           ...state.comments,
+           {
+             commentText: action.payload,
+           }
+         ]
+       }
+       
+   }
+   return state
+}
+const Store = createStore(reducer)
 export default class App extends React.Component {
    state = {
       myState: 'Lebron James'
    }
-   updateState = () => {
-     if(this.state.myState=='Lebron James' ){
-        this.setState({ myState: 'Kobe Bryant' })
-     }else{
-        this.setState({myState:'Lebron James'})
-     }
-   }
+   
    render() {
       return (
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={Inputs} />
-            <Stack.Screen name="swiping" component = {PresentationalComponent}>
-            </Stack.Screen>
-            <Stack.Screen name="lists" component={Lists} />
-          </Stack.Navigator>
-        </NavigationContainer>
+         <Provider store={Store}>
+            <NavigationContainer>
+               <Stack.Navigator initialRouteName="Home">
+                  <Stack.Screen name="Home" component={Inputs} />
+                  <Stack.Screen name="swiping" component = {PresentationalComponent}/>
+
+                  <Stack.Screen name="lists" component={Lists} />
+                  <Stack.Screen name="comments" component={Comments} />
+               </Stack.Navigator>
+            </NavigationContainer>
+        </Provider>
       );
    }
 }

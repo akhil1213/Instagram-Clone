@@ -58,7 +58,8 @@ class PresentationalComponent extends Component {
       velocityThreshold: 0.3,
       directionalOffsetThreshold: 80
     };
- 
+    const {params} = this.props.navigation.state
+    
     return (
       <GestureRecognizer
         onSwipe={(direction, state) => this.onSwipe(direction, state)}
