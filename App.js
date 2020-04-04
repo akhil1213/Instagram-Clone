@@ -27,8 +27,12 @@ const reducer = (state = initialState,action) => {
              commentInfo: action.payload,
            }
          ]
-       }
-   }
+      }
+       case 'LIKE_COMMENT':
+          return{
+             comments:action.payload
+          }
+      }
    return state
 }
 const Store = createStore(reducer)

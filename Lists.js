@@ -213,7 +213,7 @@ class List extends Component {
                   {this.props.comments.map( (comment) => {
                      if(comment.commentInfo.pictureId == item.id){
                         return(
-                           <Comment commentId = {comment.commentInfo.id} username = "younginwabeard" iconImage = {this.state.iconImage}commentText={comment.commentInfo.commentText}/>
+                           <Comment  liked = {comment.commentInfo.liked} commentId = {comment.commentInfo.id} username = "younginwabeard" iconImage = {this.state.iconImage}commentText={comment.commentInfo.commentText}/>
                         )
                      }
                   })}

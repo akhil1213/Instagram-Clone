@@ -18,7 +18,8 @@ class Comments extends Component {
         var commentInfo= {
             commentText:this.state.commentText,
             pictureId:this.params.picture.item.id,
-            id:uuid.v1()
+            id:uuid.v1(),
+            liked:false
         }
         this.props.addComment(commentInfo)
         this.props.navigation.goBack()
