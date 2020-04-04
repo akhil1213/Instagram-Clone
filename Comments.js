@@ -1,18 +1,26 @@
 import React, { Component } from 'react'
 import { TextInput,Modal,Dimensions, Text, TouchableOpacity,FlatList, View, StyleSheet,  ScrollView, Image, Button } from 'react-native'
 import {connect, dispatch} from 'react-redux'
-
+import { useIsFocused } from '@react-navigation/native'
+import uuid from 'react-native-uuid'
 
 
 class Comments extends Component {
     constructor(props){
         super(props)
+        this.params = this.props.route.params
     }
     state={
         commentText:''
     }
     buttonPressed = () =>{
-        this.props.addComment(this.state.commentText)
+        console.log(this.params)
+        var commentInfo= {
+            commentText:this.state.commentText,
+            pictureId:this.params.picture.item.id,
+            id:uuid.v1()
+        }
+        this.props.addComment(commentInfo)
         this.props.navigation.goBack()
     }
     render(){
@@ -27,18 +35,13 @@ class Comments extends Component {
     }
 }
 
-function addTodo(text) {
-    return {
-        type:'ADD_COMMENT',
-        payload:text
-    }
-  }
+
 
 function mapDispatchToProps(dispatch){
     return {
-       addComment: (text) => {
-        dispatch({type:'ADD_COMMENT',payload:text})
-        console.log(text)
+       addComment: (commentInfo) => {
+        dispatch({type:'ADD_COMMENT',payload:commentInfo})
+        console.log(commentInfo)
         }
     }
  }

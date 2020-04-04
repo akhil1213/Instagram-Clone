@@ -7,6 +7,7 @@ import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 import Swipeable, { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Swipeout from 'react-native-swipeout'
 import {connect} from 'react-redux'
+import Comment from './Comment'
 // import {GestureHandler} from 'expo';
 // const { Swipeable } = GestureHandler;
 // import {
@@ -24,15 +25,9 @@ class List extends Component {
       console.log(this.props.comments)
    }
    state = {
-      iconImage:'./assets/like.png',
+      iconImage:'',
       images: [
 
-      ],
-      comments:[
-         {
-            id:'5',
-            commentText:'tyrone'
-         },
       ],
       screenWidth:Dimensions.get('window').width,
       screenHeight:Dimensions.get('window').height,
@@ -144,8 +139,7 @@ class List extends Component {
          // rowId:this.props.index,
       }
       for(var i = 0; i < this.props.comments.length; i++){
-         console.log(this.props.comments[i].commentText)
-         console.log("dick")
+         console.log(this.props.comments[i])
       }
       return (
          <View>
@@ -209,19 +203,19 @@ class List extends Component {
                      <Image source = {{uri:item.path}} style = {{width: this.state.screenWidth, height: this.state.screenHeight/2}} />
                   </TouchableOpacity>
                   <View style={styles.imageOptions}>
-                     <TouchableOpacity onPress = {() => this.changeLike}>
+                     <TouchableOpacity onPress = {this.changeLike}>
                         <Image source={this.state.heartIcon}></Image>
                      </TouchableOpacity>
-                     <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments')}>
+                     <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments',{picture:{item}})}>
                         <Image source={this.state.commentPath}></Image>
                      </TouchableOpacity>
                   </View>
-                  {this.props.comments.map(function(comment) {
-                     return(
-                        <Text>
-                           Akhilsss{comment.commentText}
-                        </Text>
-                     )
+                  {this.props.comments.map( (comment) => {
+                     if(comment.commentInfo.pictureId == item.id){
+                        return(
+                           <Comment commentId = {comment.commentInfo.id} username = "younginwabeard" iconImage = {this.state.iconImage}commentText={comment.commentInfo.commentText}/>
+                        )
+                     }
                   })}
 
                   </Swipeout>

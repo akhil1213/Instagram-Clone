@@ -2,13 +2,15 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import PresentationalComponent from './PresentationalComponent'
 import Inputs from './Inputs.js'
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, useIsFocused} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Lists from './Lists.js'
 import Comments from './Comments'
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {createStore} from 'redux'
 import {Provider} from 'react-redux'
+import uuid from 'react-native-uuid';
+
 const Stack = createStackNavigator();
 const initialState = {
    commentText:'',
@@ -22,11 +24,10 @@ const reducer = (state = initialState,action) => {
          comments: [
            ...state.comments,
            {
-             commentText: action.payload,
+             commentInfo: action.payload,
            }
          ]
        }
-       
    }
    return state
 }
