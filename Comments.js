@@ -53,9 +53,9 @@ class Comments extends Component {
         //you need to use animated view since both the text height and the location of the input field should change in parallel. Otherwise location of input field has to wait for text to finish.
         return (
             <Animated.View style={[styles.container, { transform: [{translateY: this.state.keyboardHeight}] }]}>
-                <TextInput multiline={true} placeholder = "Add a comment..." onChangeText={(text) => {this.setState({commentText:text})}}/>
+                <TextInput style={styles.input} multiline={true} placeholder = "Add a comment..." onChangeText={(text) => {this.setState({commentText:text})}}/>
                 <View style={styles.postButton}>
-                    <TouchableOpacity onPress = {this.buttonPressed.bind(this)} style={styles.postButton}>
+                    <TouchableOpacity onPress = {this.buttonPressed.bind(this)}>
                         <Text style={{color:'rgb(122, 136, 204)'}}>Post</Text>
                     </TouchableOpacity>
                 </View>
@@ -65,17 +65,23 @@ class Comments extends Component {
 }
 
 const styles = StyleSheet.create ({
+    input:{
+        width:'90%'
+    },
     container:{
         borderRadius:5,
         borderWidth:1,
         flexDirection:'row',
         position:'absolute',
         width:'100%',
-        bottom:30
+        bottom:50
     },
     postButton:{
-        paddingLeft:100,
-        color:'rgb(122,136,204)'
+        // position:'absolute',
+        // right:0,
+        color:'rgb(122,136,204)',
+        flexDirection:'column',
+        justifyContent:'center'
     }
 })
 

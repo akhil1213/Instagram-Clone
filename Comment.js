@@ -48,8 +48,11 @@ function Comment(props){
     return(
         <View style={styles.container}>
             <Image source={{uri:props.iconImage}} style={styles.image}></Image>
-            <Text style={styles.username}>{props.username}</Text>
-            <Text style={styles.comment}>{props.commentText}</Text>
+            <Text style={styles.comment}>
+                <Text style={styles.username}>{props.username}</Text>
+                <Text>  {props.commentText}</Text>
+            </Text>
+            {/* <Text style={styles.comment}>{props.commentText}</Text> */}
             <TouchableOpacity onPress={likeComment} style={styles.touchable}>
                 <Image source={image} style={styles.heartButton}></Image>
             </TouchableOpacity>
@@ -58,8 +61,8 @@ function Comment(props){
 }
 const styles = StyleSheet.create ({
     touchable:{
-        position:'absolute',
-        right:0,
+        // position:'absolute',
+        // right:0,
     },
     container:{
         flexDirection:'row',
@@ -72,10 +75,10 @@ const styles = StyleSheet.create ({
     },
     username:{
         color:'white',
-        fontWeight:'bold'
+        fontWeight:'bold',
     },
     comment:{
-        width:Dimensions.get('window').width-20,
+        width:'80%',
         marginLeft:3
     },
     heartButton:{
@@ -83,8 +86,12 @@ const styles = StyleSheet.create ({
         width:20,
         // flexDirection:'row',
         // alignItems:'flex-end'
-        // position:'absolute',
-        // right:0
+    },
+    touchable:{
+        position:'absolute',
+        right:0,
+        // flexDirection:'column',
+        // justifyContent:'center'
     }
 
 })

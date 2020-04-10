@@ -63,7 +63,7 @@ class List extends Component {
    // }
    changeLike = () =>{
       let liked = !this.state.liked
-      let heartIcon = liked ? require('./assets/like.png') : require('./assets/dislike.png')
+      let heartIcon = liked ? require('./assets/dislike.png') : require('./assets/like.png')
       console.log(this.state.liked)
       this.setState({liked,heartIcon})
    }
