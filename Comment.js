@@ -16,7 +16,6 @@ function Comment(props){
 
     const likeComment=() =>{
         console.log(props.commentId)
-        console.log('yic')
         // console.log(props.comments)
         let index = 0
         for (index = 0; index < props.comments.length; index++) {

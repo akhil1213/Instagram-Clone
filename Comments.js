@@ -13,16 +13,16 @@ class Comments extends Component {
     componentWillMount() {
         this.keyboardDidShowSub = Keyboard.addListener('keyboardDidShow', this.handleKeyboardDidShow);
         this.keyboardDidHideSub = Keyboard.addListener('keyboardDidHide', this.handleKeyboardDidHide);
-      }
+    }
     
-      componentWillUnmount() {
+    componentWillUnmount() {
         this.keyboardDidShowSub.remove();
         this.keyboardDidHideSub.remove();
-      }
-      state={
+    }
+    state={
         commentText:'',
         keyboardHeight:new Animated.Value(20)
-        }
+    }
         //when your translating y and if your going from bottom up it should be a negative value. 
     handleKeyboardDidShow = (event) =>{
         console.log("Keyboard called")

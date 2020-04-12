@@ -8,6 +8,8 @@ import Swipeable, { TouchableWithoutFeedback } from 'react-native-gesture-handle
 import Swipeout from 'react-native-swipeout'
 import {connect} from 'react-redux'
 import Comment from './Comment'
+// import Realm from './databases/schemas'
+
 // import {GestureHandler} from 'expo';
 // const { Swipeable } = GestureHandler;
 // import {
@@ -16,13 +18,34 @@ import Comment from './Comment'
 //    TouchableOpacity,
 //    TouchableWithoutFeedback
 //   } from 'react-native-gesture-handler'
+import { SQLite } from "expo-sqlite";
 
+const db = SQLite.openDatabase("db.db");
 
 class List extends Component {
    _isMounted = false;
    constructor(props) {
       super(props);
       console.log(this.props.comments)
+      this.reloadData();
+   }
+   // db = SQLite.openDatabase("db.db");
+
+   reloadData = () => {
+      // Realm.queryAllPosts().then((allPosts) => {
+      //    this.setState({images:allPosts})
+      // }).catch((error)=>{
+      //    console.log(error);
+      // })
+      db.transaction( (tx) => {
+         tx.executeSql(
+           "create table if not exists posts (id text primary key not null, path text);"
+         );
+       });
+       tx.executeSql("select * from posts", [], (_, { rows }) =>{
+         console.log(rows);
+         this.setState({images:rows})
+       });
    }
    state = {
       iconImage:'',
@@ -81,7 +104,6 @@ class List extends Component {
       console.log(rowId)
       var newPicture = {
          id:uuid.v1(),
-         name:'akhil',
          path:result.uri
       }
       if(!result.cancelled){
@@ -102,9 +124,19 @@ class List extends Component {
                this.setState({images:imagesCopied})
             }else{
                this.setState({ images: [...this.state.images, newPicture] }) 
+               // Realm.insertNewPost(newPicture).then().catch((error) =>{
+               //    console.log(error);
+               // })
+               db.transaction(
+                  tx => {
+                    tx.executeSql("insert into posts (id,path) values (?, ?)", [newPicture.id,newPicture.path]);
+                  },
+                  null,
+                  null
+                );
+              }
             }
          }
-      }
    }
    onSwipeLeft(gestureState) {
       console.log('you swiped left')

@@ -10,6 +10,7 @@ import GestureRecognizer from 'react-native-swipe-gestures';
 import {createStore} from 'redux'
 import {Provider} from 'react-redux'
 import uuid from 'react-native-uuid';
+// import Realm from './databases/schemas'
 
 const Stack = createStackNavigator();
 const initialState = {
