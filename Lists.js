@@ -18,7 +18,7 @@ import Comment from './Comment'
 //    TouchableOpacity,
 //    TouchableWithoutFeedback
 //   } from 'react-native-gesture-handler'
-import { SQLite } from "expo-sqlite";
+import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase("db.db");
 
@@ -38,14 +38,23 @@ class List extends Component {
       //    console.log(error);
       // })
       db.transaction( (tx) => {
-         tx.executeSql(
-           "create table if not exists posts (id text primary key not null, path text);"
-         );
-       });
-       tx.executeSql("select * from posts", [], (_, { rows }) =>{
-         console.log(rows);
-         this.setState({images:rows})
-       });
+         // tx.executeSql(
+         //   "create table if not exists posts (id text primary key not null, path text);"
+         // );
+         // tx.executeSql(
+         //   "create table if not exists comments (id text primary key not null, commentText text, pictureId text, liked int);"
+         // );
+         tx.executeSql("select * from posts", [], (_, { rows }) =>{
+            console.log(rows._array);
+            this.setState({images:rows._array})
+         });
+         tx.executeSql("select * from comments", [], (_, { rows }) =>{
+            console.log(rows._array)
+         });
+         // tx.executeSql("delete from posts");
+         // tx.executeSql("delete from posts");
+
+      });
    }
    state = {
       iconImage:'',
@@ -134,9 +143,9 @@ class List extends Component {
                   null,
                   null
                 );
-              }
             }
          }
+      }
    }
    onSwipeLeft(gestureState) {
       console.log('you swiped left')
@@ -243,9 +252,10 @@ class List extends Component {
                      </TouchableOpacity>
                   </View>
                   {this.props.comments.map( (comment) => {
-                     if(comment.commentInfo.pictureId == item.id){
+                     console.log(comment)
+                     if(comment.pictureId == item.id){
                         return(
-                           <Comment  liked = {comment.commentInfo.liked} commentId = {comment.commentInfo.id} username = "younginwabeard" iconImage = {this.state.iconImage}commentText={comment.commentInfo.commentText}/>
+                           <Comment  liked = {comment.liked} commentId = {comment.id} username = "younginwabeard" iconImage = {this.state.iconImage}commentText={comment.commentText}/>
                         )
                      }
                   })}

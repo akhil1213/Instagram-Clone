@@ -3,8 +3,10 @@ import { TextInput,Modal,Dimensions, Keyboard, Text, TouchableOpacity,FlatList, 
 import {connect, dispatch} from 'react-redux'
 import { useIsFocused } from '@react-navigation/native'
 import uuid from 'react-native-uuid'
+import * as SQLite from 'expo-sqlite';
 
-
+const db = SQLite.openDatabase("db.db");
+//Add comment
 class Comments extends Component {
     constructor(props){
         super(props)
@@ -41,10 +43,21 @@ class Comments extends Component {
                 commentText:this.state.commentText,
                 pictureId:this.params.picture.item.id,
                 id:uuid.v1(),
-                liked:false
+                liked:0
             }
             this.props.addComment(commentInfo)
             this.props.navigation.goBack()
+            db.transaction(
+                tx => {
+                    tx.executeSql("insert into comments (id,commentText,pictureId,liked) values (?, ?, ?, ?)", 
+                    [
+                        commentInfo.id,
+                        this.state.commentText,
+                        this.params.picture.item.id,
+                        commentInfo.liked
+                    ]);
+                },
+            );
         }
     }
     render(){
@@ -88,9 +101,9 @@ const styles = StyleSheet.create ({
 function mapDispatchToProps(dispatch){
     return {
        addComment: (commentInfo) => {
-        dispatch({type:'ADD_COMMENT',payload:commentInfo})
-        console.log(commentInfo)
-        }
+            dispatch({type:'ADD_COMMENT',payload:commentInfo})
+            console.log(commentInfo)
+       }
     }
  }
 

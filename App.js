@@ -11,12 +11,17 @@ import {createStore} from 'redux'
 import {Provider} from 'react-redux'
 import uuid from 'react-native-uuid';
 // import Realm from './databases/schemas'
+import * as SQLite from 'expo-sqlite';
+const db = SQLite.openDatabase("db.db");
 
 const Stack = createStackNavigator();
+
 const initialState = {
    commentText:'',
    comments:[]
 }
+// explains how redux works, redux is important when sibling components update each other. 
+//https://stackoverflow.com/questions/41939171/react-redux-concept-vs-server-call-requests
 const reducer = (state = initialState,action) => {
    console.log(action.payload)
    switch(action.type){
@@ -24,9 +29,7 @@ const reducer = (state = initialState,action) => {
          return  {
          comments: [
            ...state.comments,
-           {
-             commentInfo: action.payload,
-           }
+            action.payload,
          ]
       }
        case 'LIKE_COMMENT':
@@ -38,6 +41,16 @@ const reducer = (state = initialState,action) => {
 }
 const Store = createStore(reducer)
 export default class App extends React.Component {
+   constructor(props){
+      super(props)
+      db.transaction( (tx) => {
+         tx.executeSql("select * from comments", [], (_, { rows }) =>{
+            console.log("comments:")
+            console.log(rows._array)
+            initialState.comments = rows._array
+         });
+      });
+   }
    state = {
       myState: 'Lebron James'
    }
