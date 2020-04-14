@@ -5,7 +5,7 @@ import Inputs from './Inputs.js'
 import {NavigationContainer, useIsFocused} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import Lists from './Lists.js'
-import Comments from './Comments'
+import AddComment from './AddComment'
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {createStore} from 'redux'
 import {Provider} from 'react-redux'
@@ -32,7 +32,7 @@ const reducer = (state = initialState,action) => {
             action.payload,
          ]
       }
-       case 'LIKE_COMMENT':
+       case 'UPDATE_COMMENT'://works with deleting/liking/disliking a comment.
           return{
              comments:action.payload
           }
@@ -64,7 +64,7 @@ export default class App extends React.Component {
                   <Stack.Screen name="swiping" component = {PresentationalComponent}/>
 
                   <Stack.Screen name="lists" component={Lists} />
-                  <Stack.Screen name="comments" component={Comments} />
+                  <Stack.Screen name="comments" component={AddComment} />
                </Stack.Navigator>
             </NavigationContainer>
         </Provider>

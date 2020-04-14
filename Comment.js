@@ -11,6 +11,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
     array, such that the comment that just has been liked has liked:true inside of that object now.
 */ 
 import * as SQLite from 'expo-sqlite';
+import Swipeout from 'react-native-swipeout'
 const db = SQLite.openDatabase("db.db");
 
 class Comment extends Component{
@@ -36,12 +37,12 @@ class Comment extends Component{
         //also update the image state, if its liked then it should be a dislike image
         if (this.state.image == require('./assets/dislike.png')){//this means your unliking the comment.
             this.props.comments[index].liked = 0
-            this.props.likeComment(props.comments)
+            this.props.updateComment(props.comments)
             this.setState({image:require('./assets/like.png')})
             this.updateCommentDb(0,this.props.commentId)
         }else{
             this.props.comments[index].liked = 1
-            this.props.likeComment(this.props.comments)
+            this.props.updateComment(this.props.comments)
             this.setState({image:require('./assets/dislike.png')})
             this.updateCommentDb(1,this.props.commentId)
         }
@@ -49,8 +50,8 @@ class Comment extends Component{
     }
     updateCommentDb = (liked,commentId) => {
         console.log(liked + "commentid;" + commentId)
-        db.transaction( (tx) => {
-            tx.executeSql("update comments set liked = " + liked + "where id = ?;" , [commentId])
+        db.transaction( (tx) => {//must use ? syntax.
+            tx.executeSql("update comments set liked = ? where id = ?" , [liked,commentId])
             tx.executeSql("select * from comments", [], (_, { rows }) =>{
                 console.log(rows._array)
             });
@@ -64,17 +65,30 @@ class Comment extends Component{
     }
     render(){
         return(
-            <View style={styles.container}>
-                <Image source={{uri:this.props.iconImage}} style={styles.image}></Image>
-                <Text style={styles.comment}>
-                    <Text style={styles.username}>{this.props.username}</Text>
-                    <Text>  {this.props.commentText}</Text>
-                </Text>
-                {/* <Text style={styles.comment}>{props.commentText}</Text> */}
-                <TouchableOpacity onPress={this.likeComment} style={styles.touchable}>
-                    <Image source={this.state.image} style={styles.heartButton}></Image>
-                </TouchableOpacity>
-            </View>
+            <Swipeout autoClose={true} right={[
+                {
+                   onPress: () =>{
+                        let updatedComments = this.props.comments.filter( (comment) => { 
+                            return comment.id !== this.props.commentId
+                        })
+                        console.log(updatedComments)
+                        this.props.updateComment(updatedComments)
+                   },
+                   component:<Image source={require('./assets/trash.png')} style={{position:'absolute',right:0,}}></Image>,
+                },
+             ]}>
+                <View style={styles.container}>
+                    <Image source={{uri:this.props.iconImage}} style={styles.image}></Image>
+                    <Text style={styles.comment}>
+                        <Text style={styles.username}>{this.props.username}</Text>
+                        <Text>  {this.props.commentText}</Text>
+                    </Text>
+                    {/* <Text style={styles.comment}>{props.commentText}</Text> */}
+                    <TouchableOpacity onPress={this.likeComment} style={styles.touchable}>
+                        <Image source={this.state.image} style={styles.heartButton}></Image>
+                    </TouchableOpacity>
+                </View>
+            </Swipeout>
         )
     }
 }
@@ -118,10 +132,10 @@ const mapStateToProps = state => ({ comments: state.comments })
 
 function mapDispatchToProps(dispatch){
     return {
-       likeComment: (updatedComments) => {
+       updateComment: (updatedComments) => {
             dispatch(
                 {
-                    type:'LIKE_COMMENT',
+                    type:'UPDATE_COMMENT',
                     payload:updatedComments
                 }
             )

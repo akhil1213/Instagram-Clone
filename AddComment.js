@@ -4,10 +4,11 @@ import {connect, dispatch} from 'react-redux'
 import { useIsFocused } from '@react-navigation/native'
 import uuid from 'react-native-uuid'
 import * as SQLite from 'expo-sqlite';
+import Swipeout from 'react-native-swipeout'
 
 const db = SQLite.openDatabase("db.db");
 //Add comment
-class Comments extends Component {
+class AddComment extends Component {
     constructor(props){
         super(props)
         this.params = this.props.route.params
@@ -108,4 +109,4 @@ function mapDispatchToProps(dispatch){
  }
 
 
- export default connect(null,mapDispatchToProps)(Comments)
+ export default connect(null,mapDispatchToProps)(AddComment)

@@ -69,30 +69,6 @@ class List extends Component {
       modalVisible:false,
       commentText:''
    }
-   modalButtonPressed = () =>{
-      const commentsWithNew = this.state.comments.concat(this.state.commentText)
-      console.log(this.state.commentText)
-      let newComment = {
-         commentText:this.state.commentText,
-         id:uuid.v1()
-      }
-      this.setState({
-           commentText:'',
-           comments:[...this.state.comments, newComment],
-      },function () {
-         this.setState({modalVisible:false})
-     })
-     console.log(this.state.comments[0])
-   }
-   // addComment = (newComment) => {
-   //    //need to use bind because 'this' gets lost.
-   //    if(this._isMounted){
-   //       this.setState({
-   //          commentText:this.props.route.params.commentText
-   //       })
-   //       console.log(this.state.commentText)
-   //    }
-   // }
    changeLike = () =>{
       let liked = !this.state.liked
       let heartIcon = liked ? require('./assets/dislike.png') : require('./assets/like.png')
@@ -184,73 +160,63 @@ class List extends Component {
       }
       return (
          <View>
-            {/* <Modal
-                           animationType="slide"
-                           visible={this.state.modalVisible}
-                           onRequestClose={() => {
-                              Alert.alert("Modal has been closed.");
-                           }}
-                        >
-                           <View style={styles.modalView}>
-                              <TextInput style={styles.input} onChangeText={text => this.setState({commentText:text})}/>
-                              <Button   title="Learn More" onPress = {this.modalButtonPressed.bind(this)}></Button>
-                           </View>
-            </Modal> */}
             <Button title = "choose photo" onPress = {() => this.pickImage(null)} style = {styles.button}/>
             <FlatList
                data={this.state.images}
                renderItem={({ item }) => {
                   console.log({item})
                return(
-                  <Swipeout autoClose={true} right={[
-                     {
-                        onPress: () =>{
-                           console.log(item.id)
-                           // const index = this.state.indexOf(item.id);
-                           // console.log(index)
-                           // newimages = this.state.images.splice(index,1)
-                           // console.log(newimages)
-                           // this.setState({images:newNames})
-                           //code to delete clicked image from array
-                           this.setState({images: this.state.images.filter( (picture) => { 
-                              return picture.id !== item.id
-                           })});
-                           console.log(this.state.images)
+                  <View>
+                     <Swipeout autoClose={true} right={[
+                        {
+                           onPress: () =>{
+                              console.log(item.id)
+                              // const index = this.state.indexOf(item.id);
+                              // console.log(index)
+                              // newimages = this.state.images.splice(index,1)
+                              // console.log(newimages)
+                              // this.setState({images:newNames})
+                              //code to delete clicked image from array
+                              this.setState({images: this.state.images.filter( (picture) => { 
+                                 return picture.id !== item.id
+                              })});
+                              console.log(this.state.images)
+                           },
+                           text:'delete',
+                           type:'delete'
                         },
-                        text:'delete',
-                        type:'delete'
-                     },
-                     {
-                        onPress: () =>{
-                           this.pickImage(item.id)
+                        {
+                           onPress: () =>{
+                              this.pickImage(item.id)
+                           },
+                           text:'edit',
+                           type:'secondary'
                         },
-                        text:'edit',
-                        type:'secondary'
-                     },
-                  ]}>
-                  <View style = {styles.aboveImage}>
-                     <TouchableOpacity onPress = {() => this.pickImage('iconimage')}>
-                        <Image source={{uri:this.state.iconImage}} style={styles.iconImage}></Image>
+                     ]}>
+                     <View style = {styles.aboveImage}>
+                        <TouchableOpacity onPress = {() => this.pickImage('iconimage')}>
+                           <Image source={{uri:this.state.iconImage}} style={styles.iconImage}></Image>
+                        </TouchableOpacity>
+                        <Text>younginwabeard</Text>
+                     </View>
+                     <TouchableOpacity
+                        key = {item.id}
+                        style = {styles.container}
+                        onPress = {() => this.clickedImage(this.props,item.id)}>
+                        {/* <Text style = {styles.text}>
+                           Lebron
+                        </Text> */}
+                        <Image source = {{uri:item.path}} style = {{width: this.state.screenWidth, height: this.state.screenHeight/2}} />
                      </TouchableOpacity>
-                     <Text>younginwabeard</Text>
-                  </View>
-                  <TouchableOpacity
-                     key = {item.id}
-                     style = {styles.container}
-                     onPress = {() => this.clickedImage(this.props,item.id)}>
-                     {/* <Text style = {styles.text}>
-                        Lebron
-                     </Text> */}
-                     <Image source = {{uri:item.path}} style = {{width: this.state.screenWidth, height: this.state.screenHeight/2}} />
-                  </TouchableOpacity>
-                  <View style={styles.imageOptions}>
-                     <TouchableOpacity onPress = {this.changeLike}>
-                        <Image source={this.state.heartIcon}></Image>
-                     </TouchableOpacity>
-                     <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments',{picture:{item}})}>
-                        <Image source={this.state.commentPath}></Image>
-                     </TouchableOpacity>
-                  </View>
+                     <View style={styles.imageOptions}>
+                        <TouchableOpacity onPress = {this.changeLike}>
+                           <Image source={this.state.heartIcon}></Image>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments',{picture:{item}})}>
+                           <Image source={this.state.commentPath}></Image>
+                        </TouchableOpacity>
+                     </View>
+                  </Swipeout>
                   {this.props.comments.map( (comment) => {
                      console.log(comment)
                      if(comment.pictureId == item.id){
@@ -259,8 +225,7 @@ class List extends Component {
                         )
                      }
                   })}
-
-                  </Swipeout>
+                  </View>
                   )
                }}
                keyExtractor={item => item.id}
