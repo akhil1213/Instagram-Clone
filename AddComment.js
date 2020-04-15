@@ -50,12 +50,13 @@ class AddComment extends Component {
             this.props.navigation.goBack()
             db.transaction(
                 tx => {
-                    tx.executeSql("insert into comments (id,commentText,pictureId,liked) values (?, ?, ?, ?)", 
+                    tx.executeSql("insert into comments (id,commentText,pictureId,liked) values (?, ?, ?, ?) where user = ?", 
                     [
                         commentInfo.id,
                         this.state.commentText,
                         this.params.picture.item.id,
-                        commentInfo.liked
+                        commentInfo.liked,
+                        this.params.username
                     ]);
                 },
             );
