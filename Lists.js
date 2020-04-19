@@ -26,9 +26,9 @@ class List extends Component {
    _isMounted = false;
    constructor(props) {
       super(props);
-      console.log(this.props.comments)
       this.reloadData();
-      this.params = this.props.route.params
+      this.params = this.props.route.params//to get username from inputs component
+      console.log(this.params)
    }
    // db = SQLite.openDatabase("db.db");
 
@@ -39,25 +39,24 @@ class List extends Component {
       //    console.log(error);
       // })
       db.transaction( (tx) => {
-         // tx.executeSql(
-         //   "create table if not exists posts (id text primary key not null, path text);"
-         // );
-         // tx.executeSql(
-         //   "create table if not exists comments (id text primary key not null, commentText text, pictureId text, liked int);"
-         // );
+         // tx.executeSql("DROP TABLE posts;")
+         // tx.executeSql("DROP TABLE comments;")
+         tx.executeSql(
+           "create table if not exists posts (id text primary key not null,username text, path text);"
+         );
+         tx.executeSql(
+           "create table if not exists comments (id text primary key not null, commentText text, pictureId text, liked int, username text);"
+         );
          console.log(this.params.username)
-         console.log("im confused")
          // tx.executeSql("ALTER TABLE posts ADD COLUMN username text;")
          // tx.executeSql("ALTER TABLE comments ADD COLUMN username text;")
-         tx.executeSql("select * from posts where username = ?", [this.params.username], (_, { rows }) =>{
-            console.log(rows._array);
+         tx.executeSql("select * from posts", [], (_, { rows }) =>{
+            // console.log(rows._array);
             this.setState({images:rows._array})
          });
-         tx.executeSql("select * from comments where username = ?", [this.params.username], (_, { rows }) =>{
+         tx.executeSql("select * from comments", [], (_, { rows }) =>{
             console.log(rows._array)
          });
-         // tx.executeSql("delete from posts");
-         // tx.executeSql("delete from posts");
       });
    }
    state = {
@@ -71,7 +70,8 @@ class List extends Component {
       heartIcon:require('./assets/like.png'),
       commentPath:require('./assets/comment.png'),
       modalVisible:false,
-      commentText:''
+      commentText:'',
+      // username:this.params.username
    }
    changeLike = () =>{
       let liked = !this.state.liked
@@ -93,7 +93,8 @@ class List extends Component {
       console.log(rowId)
       var newPicture = {
          id:uuid.v1(),
-         path:result.uri
+         path:result.uri,
+         username:this.params.username
       }
       if(!result.cancelled){
          if(rowId == 'iconimage'){
@@ -159,7 +160,7 @@ class List extends Component {
                renderItem={({ item }) => {
                   console.log({item})
                return(
-                  <View>
+                  <View style={{backgroundColor:'black'}}>
                      <Swipeout autoClose={true} right={[
                         {
                            onPress: () =>{
@@ -190,7 +191,7 @@ class List extends Component {
                         <TouchableOpacity onPress = {() => this.pickImage('iconimage')}>
                            <Image source={{uri:this.state.iconImage}} style={styles.iconImage}></Image>
                         </TouchableOpacity>
-                        <Text>{this.params.username}</Text>
+                        <Text>{item.username}</Text>
                      </View>
                      <TouchableOpacity
                         key = {item.id}
@@ -201,17 +202,17 @@ class List extends Component {
                      <View style={styles.imageOptions}>
                         <TouchableOpacity onPress = {this.changeLike}>
                            <Image source={this.state.heartIcon}></Image>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments',{picture:{item},username:this.state.username})}>
+                        </TouchableOpacity>{/* send username of current account and picture info to comment*/}
+                        <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments',{picture:{item},username:this.params.username})}>
                            <Image source={this.state.commentPath}></Image>
                         </TouchableOpacity>
                      </View>
                   </Swipeout>
                   {this.props.comments.map( (comment) => {
-                     console.log(comment)
+                     console.log(comment.username)
                      if(comment.pictureId == item.id){
                         return(
-                           <Comment   liked = {comment.liked} commentId = {comment.id} username = {this.params.username} iconImage = {this.state.iconImage}commentText={comment.commentText}/>
+                           <Comment   liked = {comment.liked} commentId = {comment.id} username = {comment.username} iconImage = {this.state.iconImage}commentText={comment.commentText}/>
                         )
                      }
                   })}
@@ -253,7 +254,11 @@ const styles = StyleSheet.create ({
    iconImage:{
       borderRadius:20,
       width:50,
-      height:50
+      height:50,
+      borderColor: 'gray',
+      borderWidth: 1,
+      marginTop:10,
+      marginLeft:3
    },
    imageOptions:{
       flexDirection:'row',

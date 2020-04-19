@@ -39,18 +39,20 @@ class AddComment extends Component {
     }
     buttonPressed = () =>{
         if(this.state.commentText!=''){
-            console.log(this.params)
+            console.log("akhilll")
+            console.log(this.params)//this comes from a view, so its coming from list to here.
             var commentInfo= {
                 commentText:this.state.commentText,
                 pictureId:this.params.picture.item.id,
                 id:uuid.v1(),
-                liked:0
+                liked:0,
+                username:this.params.username
             }
             this.props.addComment(commentInfo)
             this.props.navigation.goBack()
             db.transaction(
                 tx => {
-                    tx.executeSql("insert into comments (id,commentText,pictureId,liked) values (?, ?, ?, ?) where user = ?", 
+                    tx.executeSql("insert into comments (id,commentText,pictureId,liked,username) values (?, ?, ?, ?,?)", 
                     [
                         commentInfo.id,
                         this.state.commentText,

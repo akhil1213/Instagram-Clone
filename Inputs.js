@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-nativ
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import * as SQLite from 'expo-sqlite';
-
 const db = SQLite.openDatabase("db.db");
 //Signup page
 class Inputs extends Component {
@@ -30,11 +29,12 @@ class Inputs extends Component {
       this.setState({ password: text })
    }
    login(){
-      
-      db.transaction( (tx) => {
-         tx.executeSql("insert into user (username,password) values (?, ?)", [this.state.username,this.state.password]);
-      });
-      this.props.navigation.navigate('lists',{username:this.state.username})
+      if(this.state.username!=''){
+         db.transaction( (tx) => {
+            tx.executeSql("insert into user (username,password) values (?, ?)", [this.state.username,this.state.password]);
+         });
+         this.props.navigation.navigate('lists',{username:this.state.username})
+      }
    }
    render() {
       return (
