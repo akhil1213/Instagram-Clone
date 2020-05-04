@@ -5,9 +5,8 @@ import { useIsFocused } from '@react-navigation/native'
 import uuid from 'react-native-uuid'
 import * as SQLite from 'expo-sqlite';
 import Swipeout from 'react-native-swipeout'
-
 const db = SQLite.openDatabase("db.db");
-//Add comment
+
 class AddComment extends Component {
     constructor(props){
         super(props)
@@ -28,19 +27,14 @@ class AddComment extends Component {
     }
         //when your translating y and if your going from bottom up it should be a negative value. 
     handleKeyboardDidShow = (event) =>{
-        console.log("Keyboard called")
         Animated.timing(this.state.keyboardHeight, {
             duration: 0,
             toValue: -1*(event.endCoordinates.height-30),
             useNativeDriver: true,
         }).start();
-        // this.setState({keyboardHeight:event.endCoordinates.height})
-        // console.log("just seen thsdfdsfe keyboard dawg")
     }
     buttonPressed = () =>{
         if(this.state.commentText!=''){
-            console.log("akhilll")
-            console.log(this.params)//this comes from a view, so its coming from list to here.
             var commentInfo= {
                 commentText:this.state.commentText,
                 pictureId:this.params.picture.item.id,
@@ -67,7 +61,7 @@ class AddComment extends Component {
     render(){
         // const { params } = this.props.navigation.state;
         // const addComment = params ? params.addComment : null;
-        //you need to use animated view since both the text height and the location of the input field should change in parallel. Otherwise location of input field has to wait for text to finish.
+        //you need to use animated view since both the input box height and the location of the input field should change in parallel. Otherwise location of input field has to wait for text to finish.
         return (
             <Animated.View style={[styles.container, { transform: [{translateY: this.state.keyboardHeight}] }]}>
                 <TextInput style={styles.input} multiline={true} placeholder = "Add a comment..." onChangeText={(text) => {this.setState({commentText:text})}}/>
@@ -112,4 +106,4 @@ function mapDispatchToProps(dispatch){
  }
 
 
- export default connect(null,mapDispatchToProps)(AddComment)
+export default connect(null,mapDispatchToProps)(AddComment)

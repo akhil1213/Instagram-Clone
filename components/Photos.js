@@ -22,42 +22,12 @@ import * as SQLite from 'expo-sqlite';
 
 const db = SQLite.openDatabase("db.db");
 
-class List extends Component {
+class Photos extends Component {
    _isMounted = false;
    constructor(props) {
       super(props);
       this.reloadData();
       this.params = this.props.route.params//to get username from inputs component
-      console.log(this.params)
-   }
-   // db = SQLite.openDatabase("db.db");
-
-   reloadData = () => {
-      // Realm.queryAllPosts().then((allPosts) => {
-      //    this.setState({images:allPosts})
-      // }).catch((error)=>{
-      //    console.log(error);
-      // })
-      db.transaction( (tx) => {
-         // tx.executeSql("DROP TABLE posts;")
-         // tx.executeSql("DROP TABLE comments;")
-         tx.executeSql(
-           "create table if not exists posts (id text primary key not null,username text, path text);"
-         );
-         tx.executeSql(
-           "create table if not exists comments (id text primary key not null, commentText text, pictureId text, liked int, username text);"
-         );
-         console.log(this.params.username)
-         // tx.executeSql("ALTER TABLE posts ADD COLUMN username text;")
-         // tx.executeSql("ALTER TABLE comments ADD COLUMN username text;")
-         tx.executeSql("select * from posts", [], (_, { rows }) =>{
-            // console.log(rows._array);
-            this.setState({images:rows._array})
-         });
-         tx.executeSql("select * from comments", [], (_, { rows }) =>{
-            console.log(rows._array)
-         });
-      });
    }
    state = {
       iconImage:'',
@@ -73,7 +43,44 @@ class List extends Component {
       commentText:'',
       // username:this.params.username
    }
-   changeLike = () =>{
+   reloadData = () => {
+      db.transaction( (tx) => {
+         // tx.executeSql("DROP TABLE posts;")
+         // tx.executeSql("DROP TABLE comments;")
+         // tx.executeSql("DROP TABLE likedphotos;")
+         tx.executeSql(
+           "create table if not exists posts (id text primary key not null,username text, path text, liked int);"
+         );
+         tx.executeSql(
+           "create table if not exists comments (id text primary key not null, commentText text, pictureId text, liked int, username text);"
+         );
+         tx.executeSql(
+            "create table if not exists likedphotos (username text, path text);"
+          );
+         console.log(this.params.username)
+         tx.executeSql("select * from posts", [], (_, { rows }) =>{
+            this.setState({images:rows._array})
+         });
+         // console.log("@@@@liked photos:")
+         tx.executeSql("select * from likedphotos", [], (_, { rows }) =>{
+            // this.setState({images:rows._array})
+         });
+         tx.executeSql("select * from likedphotos where username = ?", [this.params.username], (_, { rows }) =>{
+            // console.log(rows._array);
+            likedPhotos = rows._array
+            imagesCopied = this.state.images;
+            for(var i =0; i < imagesCopied.length;i++){
+               for(var j = 0; j < likedPhotos.length; j++){
+                  if(imagesCopied[i].username == likedPhotos[j].username && imagesCopied[i].path == likedPhotos[j].path){
+                     imagesCopied[i].liked=1
+                  }
+               }
+            }
+            this.setState({images:imagesCopied})
+         });
+      });
+   }
+   changeLike = (item) =>{
       let liked = !this.state.liked
       let heartIcon = liked ? require('./assets/dislike.png') : require('./assets/like.png')
       console.log(this.state.liked)
@@ -83,7 +90,6 @@ class List extends Component {
       alert(item.name)
    }
    pickImage = async (rowId) => {//if id was passed, then that row should be updated with the new result.uri
-      
       let result = await ImagePicker.launchImageLibraryAsync({
          mediaTypes: ImagePicker.MediaTypeOptions.All,
          allowsEditing: true,
@@ -94,12 +100,12 @@ class List extends Component {
       var newPicture = {
          id:uuid.v1(),
          path:result.uri,
-         username:this.params.username
+         username:this.params.username,
+         liked:0
       }
       if(!result.cancelled){
          if(rowId == 'iconimage'){
             this.setState({iconImage:result.uri})
-            console.log("icon image clicked")
          }else{
             if(rowId!=null){
                var index = -1;
@@ -108,18 +114,14 @@ class List extends Component {
                      index = i
                   }
                }
-               console.log(index)
                let imagesCopied = [...this.state.images];  
                imagesCopied[index].path = result.uri
                this.setState({images:imagesCopied})
             }else{
                this.setState({ images: [...this.state.images, newPicture] }) 
-               // Realm.insertNewPost(newPicture).then().catch((error) =>{
-               //    console.log(error);
-               // })
                db.transaction(
                   tx => {
-                    tx.executeSql("insert into posts (id,path,username) values (?, ?,?)", [newPicture.id,newPicture.path,this.params.username]);
+                    tx.executeSql("insert into posts (id,path,username,liked) values (?, ?,?,?)", [newPicture.id,newPicture.path,this.params.username,0]);
                     tx.executeSql("select * from posts", [], (_, { rows }) =>{
                      console.log(rows._array);
                   });
@@ -136,22 +138,8 @@ class List extends Component {
    }
    clickedImage = (props,id) =>{
       this.props.navigation.navigate('swiping')
-      console.log(id)
    }
    render() {
-      const swipeProps = {
-         autoClose:true,
-         onClose:(sectionID, rowId, direction)=>{
-            console.log('closed')
-         },
-         onOpen:(sectionID, rowId, direction)=>{
-            console.log(rowId)
-         },
-         // rowId:this.props.index,
-      }
-      for(var i = 0; i < this.props.comments.length; i++){
-         console.log(this.props.comments[i])
-      }
       return (
          <View>
             <Button title = "choose photo" onPress = {() => this.pickImage(null)} style = {styles.button}/>
@@ -200,7 +188,30 @@ class List extends Component {
                         <Image source = {{uri:item.path}} style = {{width: this.state.screenWidth, height: this.state.screenHeight/2}} />
                      </TouchableOpacity>
                      <View style={styles.imageOptions}>
-                        <TouchableOpacity onPress = {this.changeLike}>
+                        <TouchableOpacity onPress = {()=>{
+                           let liked = !this.state.liked
+                           let heartIcon = liked ? require('./assets/dislike.png') : require('./assets/like.png')
+                           this.setState({liked,heartIcon})
+                           if(liked == 1){
+                              db.transaction(
+                                    tx => {
+                                    tx.executeSql("insert into likedphotos (username,path) values (?, ?)", [this.params.username,item.path]);
+                                    tx.executeSql("select * from likedphotos", [],(_, { rows }) =>{
+                                       console.log(rows._array);
+                                    } )}
+                               );
+                           }else{
+                              //what photo is liked and who is it liked by?
+                              db.transaction(
+                                 tx => {
+                                   tx.executeSql("delete from likedphotos where username = ? and path = ?", [this.params.username,item.path]);
+                                   tx.executeSql("select * from likedphotos", [],(_, { rows }) =>{
+                                    console.log(rows._array);
+                                    })
+                                 },
+                               );
+                           }
+                        }}>
                            <Image source={this.state.heartIcon}></Image>
                         </TouchableOpacity>{/* send username of current account and picture info to comment*/}
                         <TouchableOpacity onPress = {() => this.props.navigation.navigate('comments',{picture:{item},username:this.params.username})}>
@@ -228,7 +239,7 @@ class List extends Component {
 const mapStateToProps = state => ({ comments: state.comments })
 
 
-export default connect(mapStateToProps)(List)
+export default connect(mapStateToProps)(Photos)
 
 const styles = StyleSheet.create ({
    input: {
@@ -288,6 +299,5 @@ const styles = StyleSheet.create ({
 
 
 
-// export default List
 
 

@@ -1,16 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import PresentationalComponent from './PresentationalComponent'
-import Inputs from './Inputs.js'
+import PresentationalComponent from './components/PresentationalComponent'
+import Inputs from './components/Inputs.js'
 import {NavigationContainer, useIsFocused} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import Lists from './Lists.js'
-import AddComment from './AddComment'
-import GestureRecognizer from 'react-native-swipe-gestures';
+import Photos from './components/Photos'
+import AddComment from './components/AddComment'
 import {createStore} from 'redux'
 import {Provider} from 'react-redux'
-import uuid from 'react-native-uuid';
-// import Realm from './databases/schemas'
 import * as SQLite from 'expo-sqlite';
 const db = SQLite.openDatabase("db.db");
 
@@ -62,8 +58,7 @@ export default class App extends React.Component {
                <Stack.Navigator initialRouteName="Home">
                   <Stack.Screen name="Home" component={Inputs} />
                   <Stack.Screen name="swiping" component = {PresentationalComponent}/>
-
-                  <Stack.Screen name="lists" component={Lists} />
+                  <Stack.Screen name="photos" component={Photos} />
                   <Stack.Screen name="comments" component={AddComment} />
                </Stack.Navigator>
             </NavigationContainer>

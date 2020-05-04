@@ -12,9 +12,6 @@ class Inputs extends Component {
          tx.executeSql(
            "create table if not exists user (username text primary key not null, password text not null);"
          );
-         // tx.executeSql("delete from posts");
-         // tx.executeSql("delete from comments");
-
       });
    }
    state = {
@@ -33,7 +30,7 @@ class Inputs extends Component {
          db.transaction( (tx) => {
             tx.executeSql("insert into user (username,password) values (?, ?)", [this.state.username,this.state.password]);
          });
-         this.props.navigation.navigate('lists',{username:this.state.username})
+         this.props.navigation.navigate('photos',{username:this.state.username})
       }
    }
    render() {
